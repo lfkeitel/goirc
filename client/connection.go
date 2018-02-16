@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fluffle/goirc/logging"
-	"github.com/fluffle/goirc/state"
+	"github.com/lfkeitel/goirc/logging"
+	"github.com/lfkeitel/goirc/state"
 	"golang.org/x/net/proxy"
 )
 

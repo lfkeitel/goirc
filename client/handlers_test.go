@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/fluffle/goirc/state"
+	"github.com/lfkeitel/goirc/state"
 	"github.com/golang/mock/gomock"
 	"testing"
 	"time"

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/fluffle/goirc/logging"
+	"github.com/lfkeitel/goirc/logging"
 )
 
 // Handlers are triggered on incoming Lines from the server, with the handler

@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.org/fluffle/goirc.svg)](https://travis-ci.org/fluffle/goirc)
+[![Build Status](https://api.travis-ci.org/lfkeitel/goirc.svg)](https://travis-ci.org/lfkeitel/goirc)
 
 GoIRC Client Framework
 ======================
@@ -7,7 +7,7 @@ GoIRC Client Framework
 
 Pretty simple, really:
 
-	go get github.com/fluffle/goirc/client
+	go get github.com/lfkeitel/goirc/client
 
 There is some example code that demonstrates usage of the library in `client.go`. This will connect to freenode and join `#go-nuts` by default, so be careful ;-)
 
@@ -24,7 +24,7 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	irc "github.com/fluffle/goirc/client"
+	irc "github.com/lfkeitel/goirc/client"
 )
 
 func main() {

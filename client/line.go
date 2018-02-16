@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fluffle/goirc/logging"
+	"github.com/lfkeitel/goirc/logging"
 )
 
 var tagsReplacer = strings.NewReplacer("\\:", ";", "\\s", " ", "\\r", "\r", "\\n", "\n")

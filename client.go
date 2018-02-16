@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	irc "github.com/fluffle/goirc/client"
-	"github.com/fluffle/goirc/logging/glog"
+	irc "github.com/lfkeitel/goirc/client"
+	"github.com/lfkeitel/goirc/logging/glog"
 )
 
 var host *string = flag.String("host", "irc.freenode.net", "IRC server")

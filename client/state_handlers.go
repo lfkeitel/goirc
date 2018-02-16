@@ -6,7 +6,7 @@ package client
 import (
 	"strings"
 
-	"github.com/fluffle/goirc/logging"
+	"github.com/lfkeitel/goirc/logging"
 )
 
 var stHandlers = map[string]HandlerFunc{

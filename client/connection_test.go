@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/fluffle/goirc/state"
+	"github.com/lfkeitel/goirc/state"
 	"github.com/golang/mock/gomock"
 )
 
@@ -384,7 +384,7 @@ func TestPing(t *testing.T) {
 	// Windows has a timer resolution of 15.625ms by default.
 	// This means the test will be slower on windows, but
 	// should at least stop most of the flakiness...
-	// https://github.com/fluffle/goirc/issues/88
+	// https://github.com/lfkeitel/goirc/issues/88
 	if runtime.GOOS == "windows" {
 		res = 15625 * time.Microsecond
 	}

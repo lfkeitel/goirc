@@ -3,7 +3,7 @@ package glog
 import (
 	"fmt"
 	"github.com/golang/glog"
-	"github.com/fluffle/goirc/logging"
+	"github.com/lfkeitel/goirc/logging"
 )
 
 // Simple adapter to utilise Google's GLog package with goirc.
