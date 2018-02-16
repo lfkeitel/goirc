@@ -1,5 +1,7 @@
 package logging
 
+import "fmt"
+
 // The IRC client will log things using these methods
 type Logger interface {
 	// Debug logging of raw socket comms to/from server.
@@ -31,13 +33,21 @@ func SetLogger(l Logger) {
 
 // A nullLogger does nothing while fulfilling Logger.
 type nullLogger struct{}
+
 func (nl nullLogger) Debug(f string, a ...interface{}) {}
-func (nl nullLogger) Info(f string, a ...interface{}) {}
-func (nl nullLogger) Warn(f string, a ...interface{}) {}
+func (nl nullLogger) Info(f string, a ...interface{})  {}
+func (nl nullLogger) Warn(f string, a ...interface{})  {}
 func (nl nullLogger) Error(f string, a ...interface{}) {}
 
 // Shim functions so that the package can be used directly
 func Debug(f string, a ...interface{}) { logger.Debug(f, a...) }
-func Info(f string, a ...interface{}) { logger.Info(f, a...) }
-func Warn(f string, a ...interface{}) { logger.Warn(f, a...) }
+func Info(f string, a ...interface{})  { logger.Info(f, a...) }
+func Warn(f string, a ...interface{})  { logger.Warn(f, a...) }
 func Error(f string, a ...interface{}) { logger.Error(f, a...) }
+
+type StdoutLogger struct{}
+
+func (sl StdoutLogger) Debug(f string, a ...interface{}) { fmt.Printf("Debug: "+f+"\n", a...) }
+func (sl StdoutLogger) Info(f string, a ...interface{})  { fmt.Printf("Info: "+f+"\n", a...) }
+func (sl StdoutLogger) Warn(f string, a ...interface{})  { fmt.Printf("Warn: "+f+"\n", a...) }
+func (sl StdoutLogger) Error(f string, a ...interface{}) { fmt.Printf("Error: "+f+"\n", a...) }

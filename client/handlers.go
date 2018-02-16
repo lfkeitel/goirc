@@ -4,8 +4,12 @@ package client
 // to manage tracking an irc connection etc.
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 	"time"
+
+	"github.com/lfkeitel/goirc/logging"
 )
 
 // sets up the internal event handlers to do essential IRC protocol things
@@ -33,11 +37,92 @@ func (conn *Conn) h_PING(line *Line) {
 
 // Handler for initial registration with server once tcp connection is made.
 func (conn *Conn) h_REGISTER(line *Line) {
+	// Temporary disable flood control for login and negotiation
+	oldFlood := conn.cfg.Flood
+	conn.cfg.Flood = true
+	defer func() { conn.cfg.Flood = oldFlood }()
+
 	if conn.cfg.Pass != "" {
 		conn.Pass(conn.cfg.Pass)
 	}
+
+	if err := conn.negotiateCaps(); err != nil {
+		logging.Error("%s", err)
+		conn.Close()
+		return
+	}
+
 	conn.Nick(conn.cfg.Me.Nick)
 	conn.User(conn.cfg.Me.Ident, conn.cfg.Me.Name)
+}
+
+func (conn *Conn) negotiateCaps() error {
+	saslResChan := make(chan *SASLResult)
+	if conn.cfg.UseSASL {
+		conn.cfg.RequestCaps = append(conn.cfg.RequestCaps, "sasl")
+		conn.setupSASLCallbacks(saslResChan)
+	}
+
+	if len(conn.cfg.RequestCaps) == 0 {
+		return nil
+	}
+
+	capChann := make(chan bool, len(conn.cfg.RequestCaps))
+	conn.HandleFunc(CAP, func(conn *Conn, line *Line) {
+		if len(line.Args) != 3 {
+			return
+		}
+		command := line.Args[1]
+
+		if command == "LS" {
+			missingCaps := len(conn.cfg.RequestCaps)
+			for _, capName := range strings.Split(line.Args[2], " ") {
+				for _, reqCap := range conn.cfg.RequestCaps {
+					if capName == reqCap {
+						conn.Raw(fmt.Sprintf("CAP REQ :%s", capName))
+						missingCaps--
+					}
+				}
+			}
+
+			for i := 0; i < missingCaps; i++ {
+				capChann <- true
+			}
+		} else if command == "ACK" || command == "NAK" {
+			for _, capName := range strings.Split(strings.TrimSpace(line.Args[2]), " ") {
+				if capName == "" {
+					continue
+				}
+
+				if command == "ACK" {
+					conn.AcknowledgedCaps = append(conn.AcknowledgedCaps, capName)
+				}
+				capChann <- true
+			}
+		}
+	})
+
+	conn.Raw("CAP LS")
+
+	if conn.cfg.UseSASL {
+		select {
+		case res := <-saslResChan:
+			if res.Failed {
+				close(saslResChan)
+				return res.Err
+			}
+		case <-time.After(time.Second * 15):
+			close(saslResChan)
+			return errors.New("SASL setup timed out. This shouldn't happen.")
+		}
+	}
+
+	// Wait for all capabilities to be ACKed or NAKed before ending negotiation
+	for i := 0; i < len(conn.cfg.RequestCaps); i++ {
+		<-capChann
+	}
+	conn.Raw("CAP END")
+	return nil
 }
 
 // Handler to trigger a CONNECTED event on receipt of numeric 001

@@ -50,6 +50,9 @@ type Conn struct {
 	// Internal counters for flood protection
 	badness  time.Duration
 	lastsent time.Time
+
+	// Acknowledged capabilities
+	AcknowledgedCaps []string
 }
 
 // Config contains options that can be passed to Client to change the
@@ -110,6 +113,21 @@ type Config struct {
 	// Split PRIVMSGs, NOTICEs and CTCPs longer than SplitLen characters
 	// over multiple lines. Default to 450 if not set.
 	SplitLen int
+
+	// Use SASL authentication
+	UseSASL bool
+
+	// SASL authentication mechanism. Only "PLAIN" is supported
+	SASLMech string
+
+	// SASL username
+	SASLLogin string
+
+	// SASL password
+	SASLPassword string
+
+	// Request IRC caps
+	RequestCaps []string
 }
 
 // NewConfig creates a Config struct containing sensible defaults.
@@ -124,6 +142,7 @@ func NewConfig(nick string, args ...string) *Config {
 		Recover:  (*Conn).LogPanic, // in dispatch.go
 		SplitLen: defaultSplit,
 		Timeout:  60 * time.Second,
+		SASLMech: "PLAIN",
 	}
 	cfg.Me.Ident = "goirc"
 	if len(args) > 0 && args[0] != "" {

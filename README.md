@@ -82,6 +82,13 @@ and `DisableStateTracking()` respectively. Doing this while connected to an IRC
 server will probably result in an inconsistent state and a lot of warnings to
 STDERR ;-)
 
+### SASL Authentication
+
+This library supports PLAIN SASL authentication using a username and password.
+On the config struct, set UseSASL to true and set SASLLogin and SASLPassword to
+their appropriate values. Typically SASLLogin will be the same as the IRC nick.
+But we don't assume that so it needs to be set.
+
 ### Misc.
 
 Sorry the documentation is crap. Use the source, Luke.
@@ -89,11 +96,11 @@ Sorry the documentation is crap. Use the source, Luke.
 [Feedback](mailto:a.bramley@gmail.com) on design decisions is welcome. I am
 indebted to Matt Gruen for his work on
 [go-bot](http://code.google.com/p/go-bot/source/browse/irc.go) which inspired
-the re-organisation and channel-based communication structure of `*Conn.send()`
+the re-organization and channel-based communication structure of `*Conn.send()`
 and `*Conn.recv()`. I'm sure things could be more asynchronous, still.
 
-This code is (c) 2009-15 Alex Bramley, and released under the same licence terms
-as Go itself.
+This code is (c) 2009-15 Alex Bramley, and released under the same license terms
+as Go itself. Parts copyright 2018 Lee Keitel.
 
 Contributions gratefully received from:
 
