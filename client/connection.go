@@ -100,6 +100,14 @@ type Config struct {
 	// Set this to true to disable flood protection and false to re-enable.
 	Flood bool
 
+	// Secs between each line
+	// Defaults to 2
+	FloodLineSecs int
+
+	// Fraction of a second for each character (1/FloodCharSecs)
+	// Default to 120 (1/120)
+	FloodCharSecs int
+
 	// Sent as the reply to a CTCP VERSION message.
 	Version string
 
@@ -136,13 +144,15 @@ type Config struct {
 // name, but these are optional.
 func NewConfig(nick string, args ...string) *Config {
 	cfg := &Config{
-		Me:       &state.Nick{Nick: nick},
-		PingFreq: 3 * time.Minute,
-		NewNick:  func(s string) string { return s + "_" },
-		Recover:  (*Conn).LogPanic, // in dispatch.go
-		SplitLen: defaultSplit,
-		Timeout:  60 * time.Second,
-		SASLMech: "PLAIN",
+		Me:            &state.Nick{Nick: nick},
+		PingFreq:      3 * time.Minute,
+		NewNick:       func(s string) string { return s + "_" },
+		Recover:       (*Conn).LogPanic, // in dispatch.go
+		SplitLen:      defaultSplit,
+		Timeout:       60 * time.Second,
+		SASLMech:      "PLAIN",
+		FloodLineSecs: 2,
+		FloodCharSecs: 120,
 	}
 	cfg.Me.Ident = "goirc"
 	if len(args) > 0 && args[0] != "" {
@@ -492,7 +502,7 @@ func (conn *Conn) runLoop() {
 // write writes a \r\n terminated line of output to the connected server,
 // using Hybrid's algorithm to rate limit if conn.cfg.Flood is false.
 func (conn *Conn) write(line string) error {
-	if !conn.cfg.Flood {
+	if !conn.cfg.Flood && conn.cfg.FloodLineSecs > 0 {
 		if t := conn.rateLimit(len(line)); t != 0 {
 			// sleep for the current line's time value before sending it
 			logging.Info("irc.rateLimit(): Flood! Sleeping for %.2f secs.",
@@ -518,7 +528,7 @@ func (conn *Conn) write(line string) error {
 func (conn *Conn) rateLimit(chars int) time.Duration {
 	// Hybrid's algorithm allows for 2 seconds per line and an additional
 	// 1/120 of a second per character on that line.
-	linetime := 2*time.Second + time.Duration(chars)*time.Second/120
+	linetime := time.Duration(conn.cfg.FloodLineSecs)*time.Second + time.Duration(chars)*time.Second/time.Duration(conn.cfg.FloodCharSecs)
 	elapsed := time.Now().Sub(conn.lastsent)
 	if conn.badness += linetime - elapsed; conn.badness < 0 {
 		// negative badness times are badness...
