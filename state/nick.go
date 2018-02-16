@@ -144,7 +144,9 @@ func (nk *Nick) Equals(other *Nick) bool {
 
 // Duplicates a NickMode struct.
 func (nm *NickMode) Copy() *NickMode {
-	if nm == nil { return nil }
+	if nm == nil {
+		return nil
+	}
 	n := *nm
 	return &n
 }
@@ -182,6 +184,10 @@ func (nk *nick) String() string {
 //	+iwx
 func (nm *NickMode) String() string {
 	str := "+"
+	if nm == nil {
+		return "No modes set"
+	}
+
 	v := reflect.Indirect(reflect.ValueOf(nm))
 	t := v.Type()
 	for i := 0; i < v.NumField(); i++ {
