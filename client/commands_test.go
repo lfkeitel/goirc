@@ -154,6 +154,9 @@ func TestClientCommands(t *testing.T) {
 	c.Notice("somebody", "something")
 	s.nc.Expect("NOTICE somebody :something")
 
+	c.Noticef("somebody", "something %s", "cool")
+	s.nc.Expect("NOTICE somebody :something cool")
+
 	//                    01234567890123456789012345678901234567
 	c.Notice("somebody", "something much much longer that splits")
 	s.nc.Expect("NOTICE somebody :something much much ...")
